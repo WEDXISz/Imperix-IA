@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>IMPΞRIX IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:system-ui;
+background:#0d0f14;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:white;
+}
+
+.app{
+width:520px;
+height:720px;
+display:flex;
+flex-direction:column;
+background:#111318;
+border-radius:18px;
+overflow:hidden;
+border:1px solid rgba(255,255,255,0.08);
+}
+
+.header{
+padding:14px;
+text-align:center;
+font-weight:bold;
+background:#151822;
+color:#00ff88;
+}
+
+.chat{
+flex:1;
+padding:14px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.msg{
+max-width:78%;
+padding:11px;
+border-radius:14px;
+white-space:pre-wrap;
+word-wrap:break-word;
+}
+
+.user{
+background:#00ff88;
+color:#000;
+align-self:flex-end;
+}
+
+.bot{
+background:#1c1f2a;
+align-self:flex-start;
+border:1px solid rgba(255,255,255,0.06);
+}
+
+.inputArea{
+display:flex;
+padding:12px;
+background:#151822;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:12px;
+border:none;
+outline:none;
+border-radius:12px;
+background:#0d0f14;
+color:white;
+}
+
+button{
+padding:12px 14px;
+border:none;
+border-radius:12px;
+background:#00ff88;
+font-weight:bold;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">🤖 IMPΞRIX IA</div>
+
+<div class="chat" id="chat"></div>
+
+<div class="inputArea">
+<input id="text" placeholder="imperix..." />
+<button onclick="send()">➤</button>
+</div>
+
+</div>
+
+<script>
+
+let memory = JSON.parse(localStorage.getItem("imperix_memory") || "[]")
+let user = JSON.parse(localStorage.getItem("imperix_user") || "{}")
+
+function save(){
+localStorage.setItem("imperix_memory", JSON.stringify(memory))
+localStorage.setItem("imperix_user", JSON.stringify(user))
+}
+
+function add(text,type){
+const div=document.createElement("div")
+div.className="msg "+type
+div.innerText=text
+document.getElementById("chat").appendChild(div)
+document.getElementById("chat").scrollTop=999999
+}
+
+/* ================= QUICK ================= */
+function quick(text){
+
+const t=text.toLowerCase()
+
+if(["oi","olá","ola"].includes(t)){
+return user.name ? `👋 Olá ${user.name}!` : "👋 Olá!"
+}
+
+if(t.includes("quem é você")){
+return "🤖 Sou a IMPΞRIX IA."
+}
+
+if(t.includes("meu nome é")){
+user.name=text.replace("meu nome é","").trim()
+save()
+return "👤 Nome salvo!"
+}
+
+return null
+}
+
+/* ================= SEND ================= */
+async function send(){
+
+const input=document.getElementById("text")
+const text=input.value.trim()
+input.value=""
+if(!text) return
+
+add(text,"user")
+
+memory.push({role:"user",text})
+save()
+
+const q=quick(text)
+if(q){
+add(q,"bot")
+memory.push({role:"bot",text:q})
+save()
+return
+}
+
+/* loading */
+const typing=document.createElement("div")
+typing.className="msg bot"
+typing.innerText="🤖 pensando..."
+document.getElementById("chat").appendChild(typing)
+
+try{
+
+/* 🔥 BACKEND (TROQUE AQUI SEU LINK DO RENDER) */
+const res = await fetch("https://SEU-BACKEND.onrender.com/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+text,
+memory: memory.slice(-10),
+user
+})
+})
+
+const data = await res.json()
+
+typing.remove()
+
+const resp =
+data?.reply ||
+"Sem resposta"
+
+add(resp,"bot")
+
+memory.push({role:"bot",text:resp})
+save()
+
+}catch(e){
+
+typing.remove()
+add("❌ Erro na conexão com IA","bot")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
