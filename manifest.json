@@ -1,0 +1,26 @@
+{
+  "name": "IMPΞRIX IA",
+  "short_name": "IMPΞRIX",
+  "description": "Assistente virtual IMPΞRIX IA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f14",
+  "theme_color": "#00ff88",
+  "icons": [
+{
+  "name": "IMPΞRIX IA",
+  "short_name": "IMPΞRIX",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0f14",
+  "theme_color": "#00ff88",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
